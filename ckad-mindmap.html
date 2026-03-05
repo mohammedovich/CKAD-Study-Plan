@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CKAD Study Plan — Mind Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .title-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .subtitle span {
+    color: var(--accent3);
+    font-weight: 600;
+  }
+
+  /* Controls */
+  .controls {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 24px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0, 212, 255, 0.08);
+  }
+
+  /* Mind map grid */
+  .mindmap {
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* Central node */
+  .center-node {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .center-circle {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, rgba(0,212,255,0.02) 100%);
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.2), inset 0 0 40px rgba(0,212,255,0.05);
+    animation: pulse-center 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-center {
+    0%, 100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.2), inset 0 0 40px rgba(0,212,255,0.05); }
+    50% { box-shadow: 0 0 70px rgba(0, 212, 255, 0.4), inset 0 0 40px rgba(0,212,255,0.1); }
+  }
+
+  .center-circle .logo {
+    font-size: 36px;
+    margin-bottom: 4px;
+  }
+
+  .center-circle .center-title {
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--accent);
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .center-circle .center-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* Phase sections */
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .phase {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .phase:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase:nth-child(1) { animation-delay: 0.1s; }
+  .phase:nth-child(2) { animation-delay: 0.2s; }
+  .phase:nth-child(3) { animation-delay: 0.3s; }
+  .phase:nth-child(4) { animation-delay: 0.4s; }
+  .phase:nth-child(5) { animation-delay: 0.5s; }
+  .phase:nth-child(6) { animation-delay: 0.6s; }
+  .phase:nth-child(7) { animation-delay: 0.7s; }
+
+  .phase-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .phase-title {
+    font-weight: 700;
+    font-size: 15px;
+    flex: 1;
+  }
+
+  .phase-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .phase-body {
+    padding: 16px 20px;
+  }
+
+  /* Topic nodes */
+  .topic {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .topic:last-child { margin-bottom: 0; }
+
+  .topic:hover {
+    border-color: var(--border);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .topic-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .topic-content {
+    flex: 1;
+  }
+
+  .topic-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+
+  .topic-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .topic-weight {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+    white-space: nowrap;
+  }
+
+  /* Color themes per phase */
+  .phase-blue .phase-header { background: rgba(0,212,255,0.05); border-bottom-color: rgba(0,212,255,0.15); }
+  .phase-blue .phase-title { color: var(--accent); }
+  .phase-blue .phase-badge { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .phase-blue .topic-dot { background: var(--accent); }
+  .phase-blue .topic-weight { background: rgba(0,212,255,0.1); color: var(--accent); }
+
+  .phase-purple .phase-header { background: rgba(124,58,237,0.05); border-bottom-color: rgba(124,58,237,0.15); }
+  .phase-purple .phase-title { color: #a78bfa; }
+  .phase-purple .phase-badge { background: rgba(124,58,237,0.1); color: #a78bfa; }
+  .phase-purple .topic-dot { background: #a78bfa; }
+  .phase-purple .topic-weight { background: rgba(124,58,237,0.1); color: #a78bfa; }
+
+  .phase-green .phase-header { background: rgba(16,185,129,0.05); border-bottom-color: rgba(16,185,129,0.15); }
+  .phase-green .phase-title { color: var(--accent3); }
+  .phase-green .phase-badge { background: rgba(16,185,129,0.1); color: var(--accent3); }
+  .phase-green .topic-dot { background: var(--accent3); }
+  .phase-green .topic-weight { background: rgba(16,185,129,0.1); color: var(--accent3); }
+
+  .phase-yellow .phase-header { background: rgba(245,158,11,0.05); border-bottom-color: rgba(245,158,11,0.15); }
+  .phase-yellow .phase-title { color: var(--accent4); }
+  .phase-yellow .phase-badge { background: rgba(245,158,11,0.1); color: var(--accent4); }
+  .phase-yellow .topic-dot { background: var(--accent4); }
+  .phase-yellow .topic-weight { background: rgba(245,158,11,0.1); color: var(--accent4); }
+
+  .phase-red .phase-header { background: rgba(239,68,68,0.05); border-bottom-color: rgba(239,68,68,0.15); }
+  .phase-red .phase-title { color: var(--accent5); }
+  .phase-red .phase-badge { background: rgba(239,68,68,0.1); color: var(--accent5); }
+  .phase-red .topic-dot { background: var(--accent5); }
+  .phase-red .topic-weight { background: rgba(239,68,68,0.1); color: var(--accent5); }
+
+  /* Timeline bar at bottom */
+  .timeline {
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 40px auto 0;
+    padding: 0 24px 60px;
+  }
+
+  .timeline-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .timeline-bar {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .week-block {
+    border-radius: 4px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .week-block:hover {
+    transform: scaleY(1.2);
+    filter: brightness(1.3);
+  }
+
+  .week-block.phase-1 { background: rgba(0,212,255,0.15); color: var(--accent); border-color: rgba(0,212,255,0.3); }
+  .week-block.phase-2 { background: rgba(124,58,237,0.15); color: #a78bfa; border-color: rgba(124,58,237,0.3); }
+  .week-block.phase-3 { background: rgba(245,158,11,0.15); color: var(--accent4); border-color: rgba(245,158,11,0.3); }
+  .week-block.phase-4 { background: rgba(16,185,129,0.15); color: var(--accent3); border-color: rgba(16,185,129,0.3); }
+
+  .timeline-labels {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+  }
+
+  .week-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* Stats row */
+  .stats {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 24px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* Hidden phases for filter */
+  .phase.hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-tag">☸ Kubernetes Certification</div>
+  <h1>CKAD Study Plan</h1>
+  <p class="subtitle">10-Week Road Map · <span>Target: Mid-May 2026</span> · Mohammed</p>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value">10</div>
+    <div class="stat-label">Weeks</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">66%</div>
+    <div class="stat-label">Pass Score</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">5</div>
+    <div class="stat-label">Domains</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">2h</div>
+    <div class="stat-label">Exam Duration</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">~20h</div>
+    <div class="stat-label">Total Study hrs</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="filter-btn active" data-filter="all">All Phases</button>
+  <button class="filter-btn" data-filter="phase-1">Phase 1 — Foundations</button>
+  <button class="filter-btn" data-filter="phase-2">Phase 2 — Networking</button>
+  <button class="filter-btn" data-filter="phase-3">Phase 3 — Advanced</button>
+  <button class="filter-btn" data-filter="phase-4">Phase 4 — Final</button>
+  <button class="filter-btn" data-filter="exam">Exam Strategy</button>
+</div>
+
+<div class="mindmap">
+
+  <div class="center-node">
+    <div class="center-circle">
+      <div class="logo">☸️</div>
+      <div class="center-title">CKAD</div>
+      <div class="center-sub">K8S 1.30+</div>
+    </div>
+  </div>
+
+  <div class="phases">
+
+    <!-- Exam Domains -->
+    <div class="phase phase-blue" data-phase="exam">
+      <div class="phase-header">
+        <span class="phase-icon">📊</span>
+        <span class="phase-title">Exam Domains</span>
+        <span class="phase-badge">Curriculum</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">App Environment, Config & Security</div>
+            <div class="topic-tags"><span class="tag">ConfigMaps</span><span class="tag">Secrets</span><span class="tag">RBAC</span><span class="tag">SecurityContext</span></div>
+          </div>
+          <span class="topic-weight">25%</span>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Application Design & Build</div>
+            <div class="topic-tags"><span class="tag">Containers</span><span class="tag">Jobs</span><span class="tag">Multi-container</span><span class="tag">Volumes</span></div>
+          </div>
+          <span class="topic-weight">20%</span>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Application Deployment</div>
+            <div class="topic-tags"><span class="tag">Deployments</span><span class="tag">Rolling Updates</span><span class="tag">Helm</span></div>
+          </div>
+          <span class="topic-weight">20%</span>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Services & Networking</div>
+            <div class="topic-tags"><span class="tag">Services</span><span class="tag">Ingress</span><span class="tag">NetworkPolicies</span></div>
+          </div>
+          <span class="topic-weight">20%</span>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Observability & Maintenance</div>
+            <div class="topic-tags"><span class="tag">Probes</span><span class="tag">Logs</span><span class="tag">Debugging</span></div>
+          </div>
+          <span class="topic-weight">15%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="phase phase-blue" data-phase="phase-1">
+      <div class="phase-header">
+        <span class="phase-icon">🔵</span>
+        <span class="phase-title">Phase 1 — Foundations</span>
+        <span class="phase-badge">Wks 1–3</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 1 · Pods & Fundamentals</div>
+            <div class="topic-tags"><span class="tag">Architecture</span><span class="tag">Pod Spec</span><span class="tag">Sidecar</span><span class="tag">Init Containers</span><span class="tag">ConfigMaps</span><span class="tag">Secrets</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 2 · Workloads</div>
+            <div class="topic-tags"><span class="tag">Deployments</span><span class="tag">ReplicaSets</span><span class="tag">DaemonSets</span><span class="tag">StatefulSets</span><span class="tag">Jobs</span><span class="tag">CronJobs</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 3 · Storage & Security</div>
+            <div class="topic-tags"><span class="tag">emptyDir</span><span class="tag">PV/PVC</span><span class="tag">StorageClass</span><span class="tag">SecurityContext</span><span class="tag">RBAC</span><span class="tag">ServiceAccounts</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase phase-purple" data-phase="phase-2">
+      <div class="phase-header">
+        <span class="phase-icon">🟣</span>
+        <span class="phase-title">Phase 2 — Networking</span>
+        <span class="phase-badge">Wks 4–6</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 4 · Services & Networking</div>
+            <div class="topic-tags"><span class="tag">ClusterIP</span><span class="tag">NodePort</span><span class="tag">LoadBalancer</span><span class="tag">DNS</span><span class="tag">Ingress</span><span class="tag">NetworkPolicy</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 5 · Observability</div>
+            <div class="topic-tags"><span class="tag">livenessProbe</span><span class="tag">readinessProbe</span><span class="tag">startupProbe</span><span class="tag">Logs</span><span class="tag">kubectl describe</span><span class="tag">exec</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 6 · Helm + Mock #1</div>
+            <div class="topic-tags"><span class="tag">helm install</span><span class="tag">upgrade</span><span class="tag">rollback</span><span class="tag">values.yaml</span><span class="tag">Mock Exam</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase phase-yellow" data-phase="phase-3">
+      <div class="phase-header">
+        <span class="phase-icon">🟠</span>
+        <span class="phase-title">Phase 3 — Advanced</span>
+        <span class="phase-badge">Wks 7–9</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 7 · Advanced Security</div>
+            <div class="topic-tags"><span class="tag">Pod Security Admission</span><span class="tag">RBAC Advanced</span><span class="tag">PodDisruptionBudgets</span><span class="tag">Affinity</span><span class="tag">Taints</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 8 · Speed & Technique</div>
+            <div class="topic-tags"><span class="tag">kubectl Mastery</span><span class="tag">Aliases</span><span class="tag">YAML Scaffolding</span><span class="tag">Task Priority</span><span class="tag">Mock #2</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Week 9 · Intensive Practice</div>
+            <div class="topic-tags"><span class="tag">E2E Scenarios</span><span class="tag">Debug Day</span><span class="tag">Security Audit</span><span class="tag">Mock #3</span><span class="tag">Cheatsheet</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase phase-green" data-phase="phase-4">
+      <div class="phase-header">
+        <span class="phase-icon">🟢</span>
+        <span class="phase-title">Phase 4 — Final Week</span>
+        <span class="phase-badge">Wk 10</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Mon — Final Mock #4</div>
+            <div class="topic-tags"><span class="tag">killer.sh</span><span class="tag">Target 85%+</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Tue — Review & Polish</div>
+            <div class="topic-tags"><span class="tag">Alias Check</span><span class="tag">Weak Areas</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Wed — Light Practice</div>
+            <div class="topic-tags"><span class="tag">15–20 Tasks</span><span class="tag">No New Topics</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Thu — Rest Day 🛌</div>
+            <div class="topic-tags"><span class="tag">No Practice</span><span class="tag">Sleep Well</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Fri — Exam Prep</div>
+            <div class="topic-tags"><span class="tag">Setup Env</span><span class="tag">Test Internet</span><span class="tag">Verify ID</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">🎓 Sat/Sun — EXAM DAY</div>
+            <div class="topic-tags"><span class="tag">Mid-May 2026</span><span class="tag">You've got this!</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam Strategy -->
+    <div class="phase phase-red" data-phase="exam">
+      <div class="phase-header">
+        <span class="phase-icon">⚡</span>
+        <span class="phase-title">Exam Strategy</span>
+        <span class="phase-badge">Key Tips</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Speed is Critical</div>
+            <div class="topic-tags"><span class="tag">Memorise kubectl</span><span class="tag">Sub-30s per task</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Set Up Aliases First</div>
+            <div class="topic-tags"><span class="tag">k=kubectl</span><span class="tag">do=--dry-run</span><span class="tag">kgp</span><span class="tag">kd</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Context Switching</div>
+            <div class="topic-tags"><span class="tag">kubectl config use-context</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Skip & Flag Hard Tasks</div>
+            <div class="topic-tags"><span class="tag">>3 min = skip</span><span class="tag">High weight first</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Always Verify Your Work</div>
+            <div class="topic-tags"><span class="tag">kubectl get</span><span class="tag">kubectl describe</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="phase phase-blue" data-phase="exam">
+      <div class="phase-header">
+        <span class="phase-icon">📚</span>
+        <span class="phase-title">Key Resources</span>
+        <span class="phase-badge">Tools</span>
+      </div>
+      <div class="phase-body">
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">killer.sh</div>
+            <div class="topic-tags"><span class="tag">Official Simulator</span><span class="tag">2 Free Sessions</span><span class="tag">Hardest Practice</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">KodeKloud CKAD</div>
+            <div class="topic-tags"><span class="tag">Structured Course</span><span class="tag">Built-in Labs</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">Killercoda.com</div>
+            <div class="topic-tags"><span class="tag">Free</span><span class="tag">Daily Drills</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">CKAD-exercises (GitHub)</div>
+            <div class="topic-tags"><span class="tag">dgkanatsios</span><span class="tag">Free</span><span class="tag">Excellent</span></div>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-dot"></div>
+          <div class="topic-content">
+            <div class="topic-name">kind / minikube</div>
+            <div class="topic-tags"><span class="tag">Local Cluster</span><span class="tag">Free-form Practice</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Timeline -->
+<div class="timeline">
+  <div class="timeline-title">// 10-Week Timeline</div>
+  <div class="timeline-bar">
+    <div class="week-block phase-1">W1</div>
+    <div class="week-block phase-1">W2</div>
+    <div class="week-block phase-1">W3</div>
+    <div class="week-block phase-2">W4</div>
+    <div class="week-block phase-2">W5</div>
+    <div class="week-block phase-2">W6</div>
+    <div class="week-block phase-3">W7</div>
+    <div class="week-block phase-3">W8</div>
+    <div class="week-block phase-3">W9</div>
+    <div class="week-block phase-4">W10</div>
+  </div>
+  <div class="timeline-labels">
+    <div class="week-label">Pods &<br>Fundamentals</div>
+    <div class="week-label">Workloads</div>
+    <div class="week-label">Storage &<br>Security</div>
+    <div class="week-label">Services &<br>Networking</div>
+    <div class="week-label">Observability</div>
+    <div class="week-label">Helm +<br>Mock #1</div>
+    <div class="week-label">Adv.<br>Security</div>
+    <div class="week-label">Speed +<br>Mock #2</div>
+    <div class="week-label">Intensive +<br>Mock #3</div>
+    <div class="week-label">🎓 Final<br>Exam</div>
+  </div>
+</div>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const phases = document.querySelectorAll('.phase');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.dataset.filter;
+
+      phases.forEach(phase => {
+        if (filter === 'all') {
+          phase.classList.remove('hidden');
+        } else if (phase.dataset.phase === filter) {
+          phase.classList.remove('hidden');
+        } else {
+          phase.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>
